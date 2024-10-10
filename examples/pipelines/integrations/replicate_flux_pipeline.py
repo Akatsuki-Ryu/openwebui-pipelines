@@ -42,10 +42,8 @@ class Pipeline:
             )
 
             # 画像URLを取得
-            image_url = output[0]
             print(output)
-            message = "![image](" + output + ")\n"
-            # return f"URL to the image: {output}"
+            message = f"![image]({output})\n"
             return message
             
 
