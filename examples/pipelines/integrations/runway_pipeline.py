@@ -52,27 +52,43 @@ class Pipeline:
         Generate a video from an image using Runway AI.
 
         Args:
-            prompt_image: URL or path to the input image
-            prompt_text: Text description for the video generation
+            user_message: The user's message
             model_id: The Runway model to use (default: gen3a_turbo)
+            messages: List of previous messages containing potential images
+            body: Additional request body parameters
             polling_interval: Time in seconds between polling for task status
             **kwargs: Additional arguments to pass to the Runway API
 
         Returns:
-            PipelineResult containing the generated video information
+            str: URL of the generated video
         """
         print(f"pipe:{__name__}")
 
         try:
-            # Hardcoded reference image path - replace with your actual image path
-            reference_image_path = "https://freedesignfile.com/upload/2017/06/Women-working-in-the-office-Stock-Photo.jpg"
+            # Extract image from the last message
+            image_block = ""
+            # print(f"message:{messages}")
+            if messages and isinstance(messages[-1].get("content"), list):
+                for item in messages[-1]["content"]:
+                    if item["type"] == "image_url":
+                        image_block = item["image_url"]["url"]
+                        break
+
+            if not image_block:
+                print("No image found in the message")
+                return "Error: No image found in the message"
+
+            # print(f"User message: {user_message}")
+            # print(f"Image URL: {image_block}")
+            
+            # return f"Image block length: {len(image_block)}"
 
 
             # Create image-to-video task
             task = self.client.image_to_video.create(
                 model="gen3a_turbo",
-                prompt_image=reference_image_path,
-                prompt_text="lady working in the office",
+                prompt_image=image_block,
+                prompt_text=user_message,
             )
             task_id = task.id
 
